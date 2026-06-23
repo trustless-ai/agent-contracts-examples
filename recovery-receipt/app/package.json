@@ -1,0 +1,14 @@
+{
+  "name": "recovery-receipt-quickstart",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "quickstart": "bun run quickstart.ts"
+  },
+  "dependencies": {
+    "@noble/curves": "^1.9.7",
+    "@noble/hashes": "^1.8.0",
+    "@trustless-ai/agent-sdk": "^0.2.0",
+    "ethers": "^6.0.0"
+  }
+}
