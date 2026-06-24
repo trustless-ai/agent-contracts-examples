@@ -23,7 +23,7 @@
 import { ethers } from "ethers";
 import { schnorr } from "@noble/curves/secp256k1";
 import { sha256 } from "@noble/hashes/sha256";
-import { buildCommitEvent, normalizeSpec, artifactHash, packReceiptProof } from "@trustless-ai/agent-sdk";
+import { buildCommitEvent, normalizeSpec, packReceiptProof } from "@trustless-ai/agent-sdk";
 
 const RPC = process.env.RPC_URL ?? "http://127.0.0.1:8545";
 const VERIFIER = process.env.VERIFIER ?? "";
@@ -67,11 +67,16 @@ async function main() {
 
   // 5. same claim, zero-dependency recompute (no SDK)
   const recomputed = zeroDepArtifactHash(spec);
+  const sdkHash = artifact_hash.replace(/^0x/, "");
+  const recomputeOk = recomputed === sdkHash;
 
   console.log("agent x-only pubkey :", pubkey);
   console.log("artifact_hash (sdk) :", expect);
-  console.log("artifact_hash (0-dep):", "0x" + recomputed, recomputed === artifact_hash.replace(/^0x/, "") ? "✓ match" : "✗ DRIFT");
+  console.log("artifact_hash (0-dep):", "0x" + recomputed, recomputeOk ? "✓ match" : "✗ DRIFT");
   console.log("on-chain verify     : valid =", valid, "| match =", match);
+  // Recomputability is the whole thesis here: a zero-dep drift makes the "recomputable
+  // without the SDK" claim false, so it MUST fail the run, not just print a line.
+  if (!recomputeOk) throw new Error("zero-dep recompute DRIFTED from the SDK artifact_hash — recomputability claim is false; aborting.");
   console.log(valid && match ? "\n✅ a real agent receipt verified on-chain, no oracle — and recomputable without the SDK." : "\n✗ check the pinned issuer key matches AGENT_PRIVKEY.");
 }
 
