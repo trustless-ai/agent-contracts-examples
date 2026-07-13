@@ -43,3 +43,23 @@ settle-once (ERC-8275)   — conditional escrow on the proof
 
 The verify layer is the trust anchor everything above depends on: escrow releases on a
 recomputable proof, not a claim.
+
+## genesis-self-source/ — a self-sourced ERC-8004 agent registry
+
+A worked reference for the **self-source** case of Source-Token Agent Binding (ERC-8323): an agent
+whose provenance source *is the agent itself* — `getSourceNFT(id) → (address(this), id)` — minted
+from scratch, no pre-existing NFT.
+
+Its point is **honest ERC-165**: a self-sourced agent implements only the *read side* of source
+binding (no external collection to `boundCollection` / `registerWithSource`), so it advertises the
+query-only subset `IAgentSourceBindingView` (`0x8b3597c9`) and returns **false** for the full
+`IAgentSourceBinding` (`0x27eba962`) — the test asserts both directions. Advertise only what you
+implement.
+
+```bash
+cd genesis-self-source
+git submodule update --init --recursive
+forge test -vv      # 12 passing
+```
+
+Live + verified on mainnet: [`0xe91934aB…4963`](https://etherscan.io/address/0xe91934aB1f6A40cc1Bb4cD530FEFF56dFE524963) — check the honest claim with a single `eth_call` (see the example README).
