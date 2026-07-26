@@ -34,7 +34,7 @@ older than relay retention can be verified via their Bitcoin OpenTimestamps anch
 ### What these cover in the 5-layer stack
 
 ```
-commitment  (ERC-8281)   — commit before outcome
+commitment  (ERC-8281)   — commit before outcome  ← truth-anchor/ example lives here
 identity    (ERC-8004)   — who signed it
 authority   (ERC-8312)   — what it was permitted to do
 witnessed   (ERC-8299/8274, OURS) — recomputable verdict ← verify/ examples live here
@@ -43,6 +43,21 @@ settle-once (ERC-8275)   — conditional escrow on the proof
 
 The verify layer is the trust anchor everything above depends on: escrow releases on a
 recomputable proof, not a claim.
+
+## truth-anchor/ — the ERC-8281 commitment anchor
+
+`TruthAnchor` is the concrete **commitment** layer: a permissionless, storage-less `record(bytes32)`
+that emits `Recorded(bytes32 indexed digest, address indexed committer)`. An agent action's
+attestation digest is committed on-chain; anyone reads the event back and recomputes the digest from
+public data — the event either matches or it doesn't. Deployed unchanged to Ethereum mainnet, Base
+Sepolia and 0G Galileo (addresses in [`truth-anchor/README.md`](truth-anchor/README.md)); it's the
+anchor read live by the [Recomputable Agents](https://github.com/Echo-Merlini/verifiable-agents)
+`/verify` page and indexed by The Graph.
+
+```bash
+cd truth-anchor
+forge test   # unit + fuzz over record()/Recorded, incl. the canonical topic0 check
+```
 
 ## genesis-self-source/ — a self-sourced ERC-8004 agent registry
 
