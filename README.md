@@ -67,6 +67,25 @@ AGENT_PRIVKEY=<same agent key> VERIFIER=<deployed addr> bun run quickstart.ts
 Ends with `valid = true | match = true` and the two independently-derived hashes agreeing —
 release is gated on a recomputable proof, never on a claim.
 
+## source-binding-sovereignty/ — why "bare owner-equality" is non-conformant
+
+ERC-8323 says `isSourceNFTOwnershipValid` MUST accept three ownership shapes (direct holder, the
+agent's **canonical** ERC-6551 TBA, or the binding contract) and that a literal
+`ownerOf(source) == ownerOf(agent)` check is **non-conformant** — it force-fails every sovereign
+agent. This example turns that sentence into a walk: one agent, one source token, four states,
+both rules evaluated at each.
+
+```bash
+cd source-binding-sovereignty/contracts
+forge test -vv    # 8 passing; states 3 and 4 are where the two rules disagree
+```
+
+States 1-2 (held, then sold) agree — which is why the bug survives review. States 3-4 (source moved
+into the agent's own canonical TBA, then escrowed under the binding) diverge: conformant `true`,
+naive `false`. Also executable: the canonical account is pinned (a different implementation *or* salt
+is a different account), burned-source returns false while a non-existent agent reverts, honest
+ERC-165 advertising, and re-check-at-action-time.
+
 ## truth-anchor/ — the ERC-8281 commitment anchor
 
 `TruthAnchor` is the concrete **commitment** layer: a permissionless, storage-less `record(bytes32)`
