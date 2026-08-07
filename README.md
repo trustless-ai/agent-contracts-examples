@@ -44,6 +44,29 @@ settle-once (ERC-8275)   — conditional escrow on the proof
 The verify layer is the trust anchor everything above depends on: escrow releases on a
 recomputable proof, not a claim.
 
+## recovery-receipt/ — verify an agent receipt on-chain, no oracle
+
+The **commit-before-outcome receipt** end to end: build it with the SDK, sign it with the agent's own
+BIP-340 key (the SDK never signs), pack it into the exact calldata the verifier reads, and verify it
+**on-chain** — then re-derive the same `artifact_hash` with a zero-dependency recompute so the SDK
+itself is auditable rather than trusted. A drift between the two paths is fatal, not a warning.
+
+```bash
+# 1. local chain + deploy (issuer pinned to the agent's x-only pubkey)
+anvil &
+cd recovery-receipt/contracts
+forge test                                   # 19 passing, incl. the official BIP-340 vectors
+ISSUER_PUBKEY=<agent x-only> PRIVATE_KEY=<anvil key> \
+  forge script script/Deploy.s.sol:Deploy --rpc-url http://127.0.0.1:8545 --broadcast
+
+# 2. run the quickstart
+cd ../app && bun install
+AGENT_PRIVKEY=<same agent key> VERIFIER=<deployed addr> bun run quickstart.ts
+```
+
+Ends with `valid = true | match = true` and the two independently-derived hashes agreeing —
+release is gated on a recomputable proof, never on a claim.
+
 ## truth-anchor/ — the ERC-8281 commitment anchor
 
 `TruthAnchor` is the concrete **commitment** layer: a permissionless, storage-less `record(bytes32)`
