@@ -55,10 +55,25 @@ forge test -vv
 
 Expect **12 passing**. Compiled with solc 0.8.24, `via_ir = true`, optimizer 200 runs.
 
-## Live reference
+## Live references
 
-Deployed + verified on Ethereum mainnet: [`0xe91934aB1f6A40cc1Bb4cD530FEFF56dFE524963`](https://etherscan.io/address/0xe91934aB1f6A40cc1Bb4cD530FEFF56dFE524963).
-Verify the honest claim yourself with a single `eth_call`:
+**Two** mainnet deployments run this exact source. Both are Sourcify `exact_match`
+on creation *and* runtime bytecode, so the source below is verifiably the code
+running at either address — not a copy of it.
+
+| address | name | symbol | Sourcify |
+|---|---|---|---|
+| [`0xe91934aB…524963`](https://repo.sourcify.dev/1/0xe91934aB1f6A40cc1Bb4cD530FEFF56dFE524963) | Genesis Agents | `GAGENT` | `exact_match` |
+| [`0x8b5AF3A5…92A2C3`](https://repo.sourcify.dev/1/0x8b5AF3A59f81c7e16617E8Eb824BC6FfB792A2C3) | Recompute Kit Bots | `RKB` | `exact_match` |
+
+The second one is worth naming explicitly: it is the registry the post-quantum
+key-binding work resolves against, so an agent id in that profile refers to a token
+*there*. It went unlisted here for a while, and the cost was real — an independent
+reviewer checking an agent's registry landed on a contract with no published source
+and correctly declined to verify that layer. Both are verified now; the omission was
+the gap, not the code.
+
+Verify the honest claim yourself with a single `eth_call` (either address works):
 
 ```bash
 cast call 0xe91934aB1f6A40cc1Bb4cD530FEFF56dFE524963 "supportsInterface(bytes4)(bool)" 0x8b3597c9  # true
